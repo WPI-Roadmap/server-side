@@ -20,7 +20,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const appF = admin.initializeApp({
-    credential: admin.credential.cert(credientials),
+  credential: admin.credential.cert(credientials),
 });
 
 
@@ -32,15 +32,25 @@ app.get('/', (req, res) => {
 });
 
 app.post('/add', async (req, res) => {
-    try {
-        const id = req.query.id;
-        const userJson = {
-            courses: ["test1", "test2"]
-        }
-        const userRef = db.collection('courses').doc(id).set(userJson);
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      }
+  try {
+    const id = req.query.id;
+    const userJson = {
+      courses: req.body["courses"],
+    }
+    const userRef = db.collection('courses').doc(id).set(userJson);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
 });
 
-app.listen(6000, () => console.log('Example app is listening on port 3000.'));
+app.get('/retrieve', (req, res) => {
+  try {
+    const id = req.query.id;;
+    const userRef = "hi";
+    res.send(userRef);
+  } catch (e) {
+    console.error("Error retrieving courses: ", e);
+  }
+})
+
+app.listen(3000, () => console.log('Example app is listening on port 3000.'));
