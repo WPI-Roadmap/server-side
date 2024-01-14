@@ -6,6 +6,10 @@ const app = express();
 
 const admin = require('firebase-admin');
 const credientials = require("./key.json");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(cors());
 
 // TODO: Replace the following with your app's Firebase project configuration
 // See: https://support.google.com/firebase/answer/7015592
@@ -31,13 +35,44 @@ app.get('/', (req, res) => {
   res.send('Successful response.');
 });
 
+app.post('/user', async (req, res) => {
+  try {
+    const id = req.query.id;
+    console.log(req.body);
+    const userJson = {
+      name: req.body.first,
+      email: req.body.email,
+      last: req.body.last,
+      year: req.body.year,
+      major: req.body.major,
+    }
+
+    const userRef = db.collection('users').doc(id).set({
+        name: req.body.first,
+        email: req.body.email,
+        last: req.body.last,
+        year: req.body.year,
+        major: req.body.major,
+      });
+    res.send({
+        "status": "success"
+    })
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+});
+
 app.post('/add', async (req, res) => {
   try {
     const id = req.query.id;
     const userJson = {
-      courses: req.body["courses"],
+      courses: req.body.courses,
     }
-    const userRef = db.collection('courses').doc(id).set(userJson);
+    console.log(userJson)
+    const userRef = db.collection('users').doc(id).update({courses: req.body.courses});
+    res.send({
+        "status": 200
+    })
   } catch (e) {
     console.error("Error adding document: ", e);
   }
@@ -45,12 +80,32 @@ app.post('/add', async (req, res) => {
 
 app.get('/retrieve', (req, res) => {
   try {
-    const id = req.query.id;;
-    const userRef = "hi";
-    res.send(userRef);
+    const id = req.query.id;
+
+    console.log(id);
+    let userRef = "hi";
+    db.collection('users').doc(id).get().then((doc) => {
+        if (doc.exists) {
+            console.log("Document data:", doc.data());
+            userRef = doc.data();
+            res.send({
+                "status": 200,
+                "data": doc.data()
+            });
+        } else {
+            // doc.data() will be undefined in this case
+            console.log("No such document!");
+            res.send({
+                "status": 404
+            })
+        }
+        }).catch((error) => {
+            console.log("Error getting document:", error);
+        });
+    
   } catch (e) {
     console.error("Error retrieving courses: ", e);
   }
 })
 
-app.listen(3000, () => console.log('Example app is listening on port 3000.'));
+app.listen(8000, () => console.log('Example app is listening on port 8000.'));
