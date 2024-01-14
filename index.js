@@ -1,7 +1,7 @@
 const express = require('express');
 
 const app = express();
-
+const PORT = process.env.PORT || 8000
 // Required for side-effects
 
 const admin = require('firebase-admin');
@@ -78,6 +78,77 @@ app.post('/add', async (req, res) => {
   }
 });
 
+app.post("/update", async (req, res) => {
+    console.log(req.body);
+    const id = req.body.id;
+    const course = req.body.course;
+    db.collection('users').doc(id).get().then((doc) => {
+        if (doc.exists) {
+            console.log(doc.data())
+            let temp = doc.data().courses;
+            
+            let tempDoub = [];
+            for(let i = 0; i < temp.length; i++){
+                if(temp[i].courseCode != course){
+                    tempDoub.push(temp[i]);
+                }
+                else {
+                    tempDoub.push({
+                        "courseCode": course,
+                        "grade": req.body.grade,
+                        "term": req.body.term,
+
+                    });
+                }
+            }
+            //console.log(tempDoub);
+             const userRef = db.collection('users').doc(id).update({courses: tempDoub});
+             res.send({
+                "status": 200
+            })
+            
+        } 
+    });
+})
+
+app.post("/delete", async (req, res) => {
+    const id = req.query.id;
+    const course = req.body.course;
+    console.log(course)
+    db.collection('users').doc(id).get().then((doc) => {
+        if (doc.exists) {
+            console.log(doc.data())
+            let temp = doc.data().courses;
+            let tempDoub = [];
+            for(let i = 0; i < temp.length; i++){
+                if(temp[i].courseCode != course){
+                    tempDoub.push(temp[i]);
+                }
+            }
+             const userRef = db.collection('users').doc(id).update({courses: tempDoub});
+             res.send({
+                "status": 200
+            })
+            } 
+    });
+});
+
+
+app.post("/updateUser", async (req, res) => {
+
+    const id = req.query.id;
+    const userRef = db.collection('users').doc(id).update({
+        name: req.body.first,
+        email: req.body.email,
+        last: req.body.last,
+        year: req.body.year,
+        major: req.body.major,
+    });
+    res.send({
+        "status": 200
+    })
+});
+
 app.get('/retrieve', (req, res) => {
   try {
     const id = req.query.id;
@@ -108,4 +179,6 @@ app.get('/retrieve', (req, res) => {
   }
 })
 
-app.listen(8000, () => console.log('Example app is listening on port 8000.'));
+
+
+app.listen(PORT || 8000, () => console.log('Example app is listening on port 8000.'));
