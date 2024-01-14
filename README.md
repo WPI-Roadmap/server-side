@@ -1,7 +1,4 @@
 <p align="center">
-  <a href="https://github.com/WPI-Roadmap">
-    <img src="./public/logo-icon.png" alt="Roadmap-WPI" width=200 height=200>
-  </a>
   <h3 align="center">WPI Roadmap</h3>
 
   <p align="center">
